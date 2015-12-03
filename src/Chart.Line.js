@@ -19,8 +19,14 @@
 		//Boolean - Whether to show horizontal lines (except X axis)
 		scaleShowHorizontalLines: true,
 
+		//Boolean -
+		scaleShowHorizontalTicks: true,
+
 		//Boolean - Whether to show vertical lines (except Y axis)
 		scaleShowVerticalLines: true,
+
+		//Boolean -
+		scaleShowVerticalTicks: true,
 
 		//Boolean - Whether the line is curved between points
 		bezierCurve : true,
@@ -202,7 +208,9 @@
 				lineWidth : this.options.scaleLineWidth,
 				lineColor : this.options.scaleLineColor,
 				showHorizontalLines : this.options.scaleShowHorizontalLines,
+				showHorizontalTicks : this.options.scaleShowHorizontalTicks,
 				showVerticalLines : this.options.scaleShowVerticalLines,
+				showVerticalTicks : this.options.scaleShowVerticalTicks,
 				gridLineWidth : (this.options.scaleShowGridLines) ? this.options.scaleGridLineWidth : 0,
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
 				padding: (this.options.showScale) ? 0 : this.options.pointDotRadius + this.options.pointDotStrokeWidth,
