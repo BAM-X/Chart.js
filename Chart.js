@@ -2755,13 +2755,13 @@
 		//Boolean - Whether to show horizontal lines (except X axis)
 		scaleShowHorizontalLines: true,
 
-		//Boolean -
+		//Boolean - Whether to draw tick marks along the Y axis
 		scaleShowHorizontalTicks: true,
 
 		//Boolean - Whether to show vertical lines (except Y axis)
 		scaleShowVerticalLines: true,
 
-		//Boolean -
+		//Boolean - Whether to draw tick marks along the X axis
 		scaleShowVerticalTicks: true,
 
 		//Boolean - Whether the line is curved between points
