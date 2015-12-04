@@ -19,11 +19,17 @@
 		//Boolean - Whether to show horizontal lines (except X axis)
 		scaleShowHorizontalLines: true,
 
+		//Boolean - Whether to show X axis (can only be false if scaleShowHorizontalLines is false)
+		scaleShowXAxis: true,
+
 		//Boolean - Whether to draw tick marks along the Y axis
 		scaleShowHorizontalTicks: true,
 
 		//Boolean - Whether to show vertical lines (except Y axis)
 		scaleShowVerticalLines: true,
+
+		//Boolean - Whether to show Y axis (can only be false if scaleShowVerticalLines is false)
+		scaleShowYAxis: true,
 
 		//Boolean - Whether to draw tick marks along the X axis
 		scaleShowVerticalTicks: true,
@@ -182,6 +188,7 @@
 
 			var scaleOptions = {
 				templateString : this.options.scaleLabel,
+				labelFormatter : this.options.scaleLabelFormatter,
 				height : this.chart.height,
 				width : this.chart.width,
 				ctx : this.chart.ctx,
@@ -190,6 +197,10 @@
 				fontSize : this.options.scaleFontSize,
 				fontStyle : this.options.scaleFontStyle,
 				fontFamily : this.options.scaleFontFamily,
+				textBaseline : this.options.scaleTextBaseline,
+				textAlign : this.options.scaleTextAlign,
+				yLabelOffsetX : this.options.yLabelOffsetX,
+				yLabelOffsetY : this.options.yLabelOffsetY,
 				valuesCount : labels.length,
 				beginAtZero : this.options.scaleBeginAtZero,
 				integersOnly : this.options.scaleIntegersOnly,
@@ -204,12 +215,16 @@
 					helpers.extend(this, updatedRanges);
 				},
 				xLabels : labels,
+				xLabelOffsetX : this.options.xLabelOffsetX,
+				xLabelOffsetY : this.options.xLabelOffsetY,
 				font : helpers.fontString(this.options.scaleFontSize, this.options.scaleFontStyle, this.options.scaleFontFamily),
 				lineWidth : this.options.scaleLineWidth,
 				lineColor : this.options.scaleLineColor,
 				showHorizontalLines : this.options.scaleShowHorizontalLines,
+				showXAxis : this.options.scaleShowXAxis,
 				showHorizontalTicks : this.options.scaleShowHorizontalTicks,
 				showVerticalLines : this.options.scaleShowVerticalLines,
+				showYAxis : this.options.scaleShowYAxis,
 				showVerticalTicks : this.options.scaleShowVerticalTicks,
 				gridLineWidth : (this.options.scaleShowGridLines) ? this.options.scaleGridLineWidth : 0,
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",

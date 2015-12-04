@@ -90,6 +90,13 @@
 			// Interpolated JS string - can access value
 			scaleLabel: "<%=value%>",
 
+			/*
+			Function:
+				Args: label, index, numLabels
+				Returns: (string) label
+			*/
+			scaleLabelFormatter: null,
+
 			// Boolean - Whether the scale should stick to integers, and not show any floats even if drawing space is there
 			scaleIntegersOnly: true,
 
@@ -107,6 +114,24 @@
 
 			// String - Scale label font colour
 			scaleFontColor: "#666",
+
+			// String - Scale label text alignment
+			scaleTextAlign: "right",
+
+			// String - Scale label text baseline alignment
+			scaleTextBaseline: "middle",
+
+			// Number - Y axis label horizontal offset in pixels
+			yLabelOffsetX: 0,
+
+			// Number - Y axis label vertical offset in pixels
+			yLabelOffsetY: 0,
+
+			// Number - X axis label horizontal offset in pixels
+			xLabelOffsetX: 0,
+
+			// Number - X axis label vertical offset in pixels
+			xLabelOffsetY: 0,
 
 			// Boolean - whether or not the chart should be responsive and resize when the browser does.
 			responsive: false,
@@ -1559,7 +1584,11 @@
 			var stepDecimalPlaces = getDecimalPlaces(this.stepValue);
 
 			for (var i=0; i<=this.steps; i++){
-				this.yLabels.push(template(this.templateString,{value:(this.min + (i * this.stepValue)).toFixed(stepDecimalPlaces)}));
+				var yLabel = template(this.templateString,{value:(this.min + (i * this.stepValue)).toFixed(stepDecimalPlaces)});
+				if(this.labelFormatter) {
+					yLabel = this.labelFormatter(yLabel, i, this.steps);
+				}
+				this.yLabels.push(yLabel);
 			}
 			this.yLabelWidth = (this.display && this.showLabels) ? longestText(this.ctx,this.font,this.yLabels) + 10 : 0;
 		},
@@ -1579,7 +1608,7 @@
 
 			// To do that we need the base line at the top and base of the chart, assuming there is no x label rotation
 			this.startPoint = (this.display) ? this.fontSize : 0;
-			this.endPoint = (this.display) ? this.height - (this.fontSize * 1.5) - 5 : this.height; // -5 to pad labels
+			this.endPoint = (this.display) ? this.height - (this.fontSize * 1.5) - (5 + this.xLabelOffsetY) : this.height; // -5 to pad labels
 
 			// Apply padding settings to the start and end point.
 			this.startPoint += this.padding;
@@ -1715,17 +1744,18 @@
 				each(this.yLabels,function(labelString,index){
 					var yLabelCenter = this.endPoint - (yLabelGap * index),
 						linePositionY = Math.round(yLabelCenter),
+						drawXAxis = this.showXAxis,
 						drawHorizontalLine = this.showHorizontalLines,
 						drawHorizontalTick = this.showHorizontalTicks;
 
-					ctx.textAlign = "right";
-					ctx.textBaseline = "middle";
+					ctx.textAlign = this.textAlign;
+					ctx.textBaseline = this.textBaseline;
 					if (this.showLabels){
-						ctx.fillText(labelString,xStart - 10,yLabelCenter);
+						ctx.fillText(labelString,xStart - 10 + this.yLabelOffsetX,yLabelCenter + this.yLabelOffsetY);
 					}
 
-					// This is X axis, so draw it
-					if (index === 0 && !drawHorizontalLine){
+					// This is X axis
+					if (index === 0 && drawXAxis && !drawHorizontalLine){
 						drawHorizontalLine = true;
 					}
 
@@ -1770,11 +1800,12 @@
 						// Check to see if line/bar here and decide where to place the line
 						linePos = this.calculateX(index - (this.offsetGridLines ? 0.5 : 0)) + aliasPixel(this.lineWidth),
 						isRotated = (this.xLabelRotation > 0),
+						drawYAxis = this.showYAxis,
 						drawVerticalLine = this.showVerticalLines,
 						drawVerticalTicks = this.showVerticalTicks;
 
-					// This is Y axis, so draw it
-					if (index === 0 && !drawVerticalLine){
+					// This is Y axis
+					if (index === 0 && drawYAxis && !drawVerticalLine){
 						drawVerticalLine = true;
 					}
 
@@ -1819,7 +1850,7 @@
 					ctx.font = this.font;
 					ctx.textAlign = (isRotated) ? "right" : "center";
 					ctx.textBaseline = (isRotated) ? "middle" : "top";
-					ctx.fillText(label, 0, 0);
+					ctx.fillText(label, this.xLabelOffsetX, this.xLabelOffsetY);
 					ctx.restore();
 				},this);
 
@@ -2755,11 +2786,17 @@
 		//Boolean - Whether to show horizontal lines (except X axis)
 		scaleShowHorizontalLines: true,
 
+		//Boolean - Whether to show X axis (can only be false if scaleShowHorizontalLines is false)
+		scaleShowXAxis: true,
+
 		//Boolean - Whether to draw tick marks along the Y axis
 		scaleShowHorizontalTicks: true,
 
 		//Boolean - Whether to show vertical lines (except Y axis)
 		scaleShowVerticalLines: true,
+
+		//Boolean - Whether to show Y axis (can only be false if scaleShowVerticalLines is false)
+		scaleShowYAxis: true,
 
 		//Boolean - Whether to draw tick marks along the X axis
 		scaleShowVerticalTicks: true,
@@ -2918,6 +2955,7 @@
 
 			var scaleOptions = {
 				templateString : this.options.scaleLabel,
+				labelFormatter : this.options.scaleLabelFormatter,
 				height : this.chart.height,
 				width : this.chart.width,
 				ctx : this.chart.ctx,
@@ -2926,6 +2964,10 @@
 				fontSize : this.options.scaleFontSize,
 				fontStyle : this.options.scaleFontStyle,
 				fontFamily : this.options.scaleFontFamily,
+				textBaseline : this.options.scaleTextBaseline,
+				textAlign : this.options.scaleTextAlign,
+				yLabelOffsetX : this.options.yLabelOffsetX,
+				yLabelOffsetY : this.options.yLabelOffsetY,
 				valuesCount : labels.length,
 				beginAtZero : this.options.scaleBeginAtZero,
 				integersOnly : this.options.scaleIntegersOnly,
@@ -2940,12 +2982,16 @@
 					helpers.extend(this, updatedRanges);
 				},
 				xLabels : labels,
+				xLabelOffsetX : this.options.xLabelOffsetX,
+				xLabelOffsetY : this.options.xLabelOffsetY,
 				font : helpers.fontString(this.options.scaleFontSize, this.options.scaleFontStyle, this.options.scaleFontFamily),
 				lineWidth : this.options.scaleLineWidth,
 				lineColor : this.options.scaleLineColor,
 				showHorizontalLines : this.options.scaleShowHorizontalLines,
+				showXAxis : this.options.scaleShowXAxis,
 				showHorizontalTicks : this.options.scaleShowHorizontalTicks,
 				showVerticalLines : this.options.scaleShowVerticalLines,
+				showYAxis : this.options.scaleShowYAxis,
 				showVerticalTicks : this.options.scaleShowVerticalTicks,
 				gridLineWidth : (this.options.scaleShowGridLines) ? this.options.scaleGridLineWidth : 0,
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
