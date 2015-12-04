@@ -113,7 +113,8 @@
 					strokeColor : dataset.strokeColor,
 					pointColor : dataset.pointColor,
 					pointStrokeColor : dataset.pointStrokeColor,
-					points : []
+					points : [],
+					pointFormatter : dataset.pointFormatter
 				};
 
 				this.datasets.push(datasetObject);
@@ -121,7 +122,7 @@
 
 				helpers.each(dataset.data,function(dataPoint,index){
 					//Add a new point for each piece of data, passing any required data to draw.
-					datasetObject.points.push(new this.PointClass({
+					var point = new this.PointClass({
 						value : dataPoint,
 						label : data.labels[index],
 						datasetLabel: dataset.label,
@@ -129,7 +130,11 @@
 						fillColor : dataset.pointColor,
 						highlightFill : dataset.pointHighlightFill || dataset.pointColor,
 						highlightStroke : dataset.pointHighlightStroke || dataset.pointStrokeColor
-					}));
+					});
+					if (dataset.pointFormatter) {
+						point = dataset.pointFormatter(point, index, dataset.data.length);
+					}
+					datasetObject.points.push(point);
 				},this);
 
 				this.buildScale(data.labels);
@@ -251,7 +256,7 @@
 
 			helpers.each(valuesArray,function(value,datasetIndex){
 				//Add a new point for each piece of data, passing any required data to draw.
-				this.datasets[datasetIndex].points.push(new this.PointClass({
+				var point = new this.PointClass({
 					value : value,
 					label : label,
 					datasetLabel: this.datasets[datasetIndex].label,
@@ -259,7 +264,11 @@
 					y: this.scale.endPoint,
 					strokeColor : this.datasets[datasetIndex].pointStrokeColor,
 					fillColor : this.datasets[datasetIndex].pointColor
-				}));
+				});
+				if (this.datasets[datasetIndex].pointFormatter) {
+					point = this.datasets[datasetIndex].pointFormatter(point, index, this.datasets[datasetIndex].points.length);
+				}
+				this.datasets[datasetIndex].points.push(point);
 			},this);
 
 			this.scale.addXLabel(label);
