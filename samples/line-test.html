@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+<head>
+    <title>Line Chart</title>
+    <style>
+        @font-face {
+            font-family: 'Gotham Book';
+            src: url('fonts/gotham-book.woff') format('woff'), url('fonts/gotham-book.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Gotham Book';
+            src: url('fonts/gotham-bold.woff') format('woff'), url('fonts/gotham-bold.ttf') format('truetype');
+            font-weight: 400;
+        }
+    </style>
+    <script src="../Chart.js"></script>
+</head>
+<body>
+<div style="width:30%">
+    <div>
+        <canvas id="canvas" height="450" width="800"></canvas>
+    </div>
+</div>
+
+<script>
+
+    var lineChartData = {
+        labels: ['', '8/23', '8/24', '8/25', '8/26', '8/27', '8/28', '8/29', '8/30', '8/31', '9/01', '9/02', ''],
+        datasets: [
+            {
+                label: "Clicks",
+                fillColor: "rgba(0, 140, 201, .1)",
+                strokeColor: "#0082c9",
+                pointColor: "#0082c9",
+                pointStrokeColor: "#0082c9",
+                pointHighlightFill: "black",
+                pointHighlightStroke: "black",
+                data: [7000, 6900, 9500, 14500, 18200, 21500, 25200, 26500, 23300, 18300, 13900, 9600, 8200],
+                pointFormatter: function (point, index, numPoints) {
+                    if (index === 0 || index === numPoints - 1) {
+                        point.draw = function () {
+                        }
+                    }
+                    return point;
+                }
+            }
+        ]
+    };
+
+    var lineChartOptions = {
+        scaleShowHorizontalLines: true,
+        scaleShowHorizontalTicks: false,
+        scaleShowYAxis: false,
+        scaleShowVerticalLines: false,
+        scaleShowVerticalTicks: false,
+
+        // Boolean - If we want to override with a hard coded scale
+        scaleOverride: true,
+
+        // ** Required if scaleOverride is true **
+        // Number - The number of steps in a hard coded scale
+        scaleSteps: 6,
+        // Number - The value jump in the hard coded scale
+        scaleStepWidth: 5000,
+        // Number - The scale starting value
+        scaleStartValue: 0,
+
+        scaleShowLabels: true,
+        scaleLabelFormatter: function (label, index, numSteps) {
+            return index > 0 && index < numSteps && index % 2 === 0 ? parseInt(label).toLocaleString() : '';
+        },
+        scaleFontFamily: "Gotham Book",
+        scaleFontSize: 10,
+        scaleFontColor: '#acacac',
+        scaleTextAlign: 'left',
+        scaleTextBaseline: 'top',
+        yLabelOffsetX: 10,
+        yLabelOffsetY: 5,
+        xLabelOffsetX: 0,
+        xLabelOffsetY: 10,
+
+        bezierCurve: false,
+
+        //Boolean - Whether to show a dot for each point
+        pointDot: true,
+
+        //Number - Radius of each point dot in pixels
+        pointDotRadius: 3,
+
+        //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+        pointHitDetectionRadius: 20,
+
+        //Number - Pixel width of dataset stroke
+        datasetStrokeWidth: 3,
+
+        //Boolean - Whether to fill the dataset with a colour
+        datasetFill: true,
+
+        customTooltips: function (tooltip) {
+            if (!tooltip) {
+                return;
+            }
+
+            var caretHeight = 7;
+            var caretWidth = 12;
+            var verticalSpace = 10;
+            var tooltipFontSize = 10;
+
+            var ctx = tooltip.chart.ctx;
+            ctx.font = "11px 'Gotham Book', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+            ctx.fontStyle = 'bold';
+            ctx.strokeStyle = '#d5c69c';
+            ctx.fillColor = 'white';
+            ctx.lineWidth = 2;
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+
+            var tooltipText = 'Monday, August 30, 2015';
+            var tooltipWidth = ctx.measureText(tooltipText).width + 10;
+            var tooltipHeight = (tooltipFontSize + 10) * 2;
+
+            var tooltipTop = tooltip.y - tooltipHeight - caretHeight - verticalSpace;
+            var tooltipLeft = tooltip.x - tooltipWidth;
+            var tooltipRight = tooltip.x;
+            var tooltipBottom = tooltip.y - verticalSpace;
+
+            ctx.beginPath();
+            ctx.moveTo(tooltipLeft, tooltipTop); // Top left
+            ctx.lineTo(tooltipRight, tooltipTop); // Top right
+            ctx.lineTo(tooltipRight, tooltipBottom); // Bottom right
+            ctx.lineTo(tooltipRight - caretWidth, tooltipBottom - caretHeight); // Caret x bottom
+            ctx.lineTo(tooltipLeft, tooltipBottom - caretHeight); // Bottom left
+            ctx.lineTo(tooltipLeft, tooltipTop); // Top Left
+            ctx.closePath();
+            ctx.stroke();
+            ctx.fill();
+
+            ctx.fillStyle = this.textColor;
+            ctx.fillText(tooltipText, tooltipLeft + 5, tooltipTop + 12);
+            ctx.fillText("Clicks: 11,000", tooltipLeft + 17, tooltipTop + 18 + tooltipFontSize);
+
+            ctx.fillStyle = '#0082c9';
+            ctx.beginPath();
+            ctx.arc(tooltipLeft + 9, tooltipTop + 17 + tooltipFontSize, 3.5, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
+        },
+
+        tooltipFillColor: 'white',
+        tooltipFontColor: "black"
+    };
+
+    window.onload = function () {
+        var ctx = document.getElementById("canvas").getContext("2d");
+        window.myLine = new Chart(ctx).Line(lineChartData, lineChartOptions);
+    }
+
+</script>
+</body>
+</html>
