@@ -55,6 +55,12 @@
 	//Globally expose the defaults to allow for user updating/changing
 	Chart.defaults = {
 		global: {
+			// Number -
+			chartPaddingLeft: 0,
+
+			// Number -
+			chartPaddingRight: 0,
+
 			// Boolean - Whether to animate the chart
 			animation: true,
 
@@ -1723,9 +1729,9 @@
 		calculateX : function(index){
 			var isRotated = (this.xLabelRotation > 0),
 				// innerWidth = (this.offsetGridLines) ? this.width - offsetLeft - this.padding : this.width - (offsetLeft + halfLabelWidth * 2) - this.padding,
-				innerWidth = this.width - (this.xScalePaddingLeft + this.xScalePaddingRight),
+				innerWidth = this.width - (this.xScalePaddingLeft + this.xScalePaddingRight) - (this.chartPaddingLeft + this.chartPaddingRight),
 				valueWidth = innerWidth/Math.max((this.valuesCount - ((this.offsetGridLines) ? 0 : 1)), 1),
-				valueOffset = (valueWidth * index) + this.xScalePaddingLeft;
+				valueOffset = (valueWidth * index) + this.xScalePaddingLeft + this.chartPaddingLeft;
 
 			if (this.offsetGridLines){
 				valueOffset += (valueWidth/2);
@@ -1740,7 +1746,7 @@
 		draw : function(){
 			var ctx = this.ctx,
 				yLabelGap = (this.endPoint - this.startPoint) / this.steps,
-				xStart = Math.round(this.xScalePaddingLeft);
+				xStart = Math.round(this.xScalePaddingLeft) + this.chartPaddingLeft;
 			if (this.display){
 				ctx.fillStyle = this.textColor;
 				ctx.font = this.font;
@@ -1780,7 +1786,7 @@
 
 					if(drawHorizontalLine){
 						ctx.moveTo(xStart, linePositionY);
-						ctx.lineTo(this.width, linePositionY);
+						ctx.lineTo(this.width - this.chartPaddingRight, linePositionY);
 						ctx.stroke();
 						ctx.closePath();
 					}
