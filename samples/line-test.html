@@ -38,10 +38,10 @@
                 pointHighlightStroke: "black",
                 data: [7000, 6900, 9500, 14500, 18200, 21500, 25200, 26500, 23300, 18300, 13900, 9600, 8200],
                 pointFormatter: function (point, index, numPoints) {
-                    if (index === 0 || index === numPoints - 1) {
-                        point.draw = function () {
-                        }
-                    }
+//                    if (index === 0 || index === numPoints - 1) {
+//                        point.draw = function () {
+//                        }
+//                    }
                     return point;
                 }
             }
@@ -49,6 +49,9 @@
     };
 
     var lineChartOptions = {
+        chartPaddingLeft: 5,
+        chartPaddingRight: 5,
+
         scaleShowHorizontalLines: true,
         scaleShowHorizontalTicks: false,
         scaleShowYAxis: false,
@@ -105,7 +108,7 @@
         tooltipFontColor: "black",
 
         customTooltips: function (tooltip) {
-            if (!tooltip || !tooltip.element.label) {
+            if (!tooltip) {
                 return;
             }
 
@@ -130,8 +133,6 @@
             ctx.beginPath();
 
             var tooltipTop, tooltipBottom, tooltipLeft, tooltipRight, tooltipAbove;
-
-            console.log(tooltip.y, tooltipHeight + caretHeight + verticalSpace)
 
             if (tooltip.y > tooltipHeight + caretHeight + verticalSpace + 10) {
                 tooltipTop = tooltip.y - tooltipHeight - caretHeight - verticalSpace;
