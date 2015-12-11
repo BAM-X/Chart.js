@@ -19,7 +19,7 @@
 <body>
 <div style="width:30%">
     <div>
-        <canvas id="canvas" height="450" width="800"></canvas>
+        <canvas id="canvas" height="450" width="800" style="border-bottom: 1px solid #d8d8d8; padding-bottom: 10px;"></canvas>
     </div>
 </div>
 
@@ -54,6 +54,8 @@
         scaleShowYAxis: false,
         scaleShowVerticalLines: false,
         scaleShowVerticalTicks: false,
+        scaleGridLineColor: '#d8d8d8',
+        scaleLineColor: 'black',
 
         // Boolean - If we want to override with a hard coded scale
         scaleOverride: true,
@@ -68,7 +70,7 @@
 
         scaleShowLabels: true,
         scaleLabelFormatter: function (label, index, numSteps) {
-            return index > 0 && index < numSteps && index % 2 === 0 ? parseInt(label).toLocaleString() : '';
+            return index > 0 && index < numSteps + 1 && index % 2 === 0 ? parseInt(label).toLocaleString() : '';
         },
         scaleFontFamily: "Gotham Book",
         scaleFontSize: 10,
@@ -79,6 +81,8 @@
         yLabelOffsetY: 5,
         xLabelOffsetX: 0,
         xLabelOffsetY: 10,
+
+        scaleYLabelWidth: 0,
 
         bezierCurve: false,
 
@@ -92,13 +96,16 @@
         pointHitDetectionRadius: 20,
 
         //Number - Pixel width of dataset stroke
-        datasetStrokeWidth: 3,
+        datasetStrokeWidth: 2,
 
         //Boolean - Whether to fill the dataset with a colour
         datasetFill: true,
 
+        tooltipFillColor: 'white',
+        tooltipFontColor: "black",
+
         customTooltips: function (tooltip) {
-            if (!tooltip) {
+            if (!tooltip || !tooltip.element.label) {
                 return;
             }
 
@@ -110,7 +117,7 @@
             var ctx = tooltip.chart.ctx;
             ctx.font = "11px 'Gotham Book', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
             ctx.fontStyle = 'bold';
-            ctx.strokeStyle = '#d5c69c';
+            ctx.strokeStyle = '#bba059';
             ctx.fillColor = 'white';
             ctx.lineWidth = 2;
             ctx.textAlign = "left";
@@ -120,18 +127,81 @@
             var tooltipWidth = ctx.measureText(tooltipText).width + 10;
             var tooltipHeight = (tooltipFontSize + 10) * 2;
 
-            var tooltipTop = tooltip.y - tooltipHeight - caretHeight - verticalSpace;
-            var tooltipLeft = tooltip.x - tooltipWidth;
-            var tooltipRight = tooltip.x;
-            var tooltipBottom = tooltip.y - verticalSpace;
-
             ctx.beginPath();
-            ctx.moveTo(tooltipLeft, tooltipTop); // Top left
-            ctx.lineTo(tooltipRight, tooltipTop); // Top right
-            ctx.lineTo(tooltipRight, tooltipBottom); // Bottom right
-            ctx.lineTo(tooltipRight - caretWidth, tooltipBottom - caretHeight); // Caret x bottom
-            ctx.lineTo(tooltipLeft, tooltipBottom - caretHeight); // Bottom left
-            ctx.lineTo(tooltipLeft, tooltipTop); // Top Left
+
+            var tooltipTop, tooltipBottom, tooltipLeft, tooltipRight, tooltipAbove;
+
+            console.log(tooltip.y, tooltipHeight + caretHeight + verticalSpace)
+
+            if (tooltip.y > tooltipHeight + caretHeight + verticalSpace + 10) {
+                tooltipTop = tooltip.y - tooltipHeight - caretHeight - verticalSpace;
+                tooltipBottom = tooltip.y - caretHeight - verticalSpace;
+                tooltipAbove = true;
+            } else {
+                tooltipTop = tooltip.y + caretHeight + verticalSpace;
+                tooltipBottom = tooltip.y + tooltipHeight + caretHeight + verticalSpace;
+                tooltipAbove = false;
+            }
+
+            var tooltipPoints = [];
+            if (tooltip.x > tooltipWidth) {
+                tooltipLeft = tooltip.x - tooltipWidth;
+                tooltipRight = tooltip.x;
+
+                tooltipPoints = tooltipPoints.concat([
+                    [tooltipLeft, tooltipTop] // Top left
+                ]);
+
+                if (tooltipAbove) {
+                    tooltipPoints = tooltipPoints.concat([
+                        [tooltipRight, tooltipTop], // Top right
+                        [tooltipRight, tooltipBottom + caretHeight], // Bottom right
+                        [tooltipRight - caretWidth, tooltipBottom] // Caret meets bottom
+                    ]);
+                } else {
+                    tooltipPoints = tooltipPoints.concat([
+                        [tooltipRight - caretWidth, tooltipTop], // Top meets caret
+                        [tooltipRight, tooltipTop - caretHeight], // Top right
+                        [tooltipRight, tooltipBottom] // Bottom right
+                    ]);
+                }
+
+                tooltipPoints = tooltipPoints.concat([
+                    [tooltipLeft, tooltipBottom], // Bottom left
+                    [tooltipLeft, tooltipTop] // Top Left
+                ]);
+            } else {
+                tooltipLeft = tooltip.x;
+                tooltipRight = tooltip.x + tooltipWidth;
+
+                tooltipPoints = tooltipPoints.concat([
+                    [tooltipLeft, tooltipTop] // Top left
+                ]);
+
+                if (tooltipAbove) {
+                    tooltipPoints = tooltipPoints.concat([
+                        [tooltipRight, tooltipTop], // Top right
+                        [tooltipRight, tooltipBottom], // Bottom right
+                        [tooltipLeft + caretWidth, tooltipBottom] // Bottom meets caret
+                    ]);
+                } else {
+                    tooltipPoints = tooltipPoints.concat([]);
+                }
+
+                tooltipPoints = tooltipPoints.concat([
+                    [tooltipLeft, tooltipBottom + caretHeight], // Bottom left
+                    [tooltipLeft, tooltipTop] // Top Left
+                ]);
+            }
+
+            for (var i = 0; i < tooltipPoints.length; i++) {
+                if (i === 0) {
+                    ctx.moveTo.apply(ctx, tooltipPoints[i]);
+                } else {
+                    ctx.lineTo.apply(ctx, tooltipPoints[i]);
+                }
+            }
+
             ctx.closePath();
             ctx.stroke();
             ctx.fill();
@@ -145,10 +215,7 @@
             ctx.arc(tooltipLeft + 9, tooltipTop + 17 + tooltipFontSize, 3.5, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
-        },
-
-        tooltipFillColor: 'white',
-        tooltipFontColor: "black"
+        }
     };
 
     window.onload = function () {
