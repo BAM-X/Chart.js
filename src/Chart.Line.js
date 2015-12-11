@@ -31,6 +31,9 @@
 		//Boolean - Whether to show Y axis (can only be false if scaleShowVerticalLines is false)
 		scaleShowYAxis: true,
 
+		//Number - Absolute width of Y axis label padding or null for dynamic
+		scaleYLabelWidth: null,
+
 		//Boolean - Whether to draw tick marks along the X axis
 		scaleShowVerticalTicks: true,
 
@@ -234,6 +237,7 @@
 				gridLineWidth : (this.options.scaleShowGridLines) ? this.options.scaleGridLineWidth : 0,
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
 				padding: (this.options.showScale) ? 0 : this.options.pointDotRadius + this.options.pointDotStrokeWidth,
+				yLabelWidth: this.options.scaleYLabelWidth,
 				showLabels : this.options.scaleShowLabels,
 				display : this.options.showScale
 			};

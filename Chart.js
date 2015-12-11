@@ -1147,6 +1147,7 @@
 							caretHeight: this.options.tooltipCaretSize,
 							cornerRadius: this.options.tooltipCornerRadius,
 							text: template(this.options.tooltipTemplate, Element),
+							element: Element,
 							chart: this.chart,
 							custom: this.options.customTooltips
 						}).draw();
@@ -1400,7 +1401,7 @@
 		render: null, // render function used by the animation service
 
 		onAnimationProgress: null, // user specified callback to fire on each step of the animation 
-		onAnimationComplete: null, // user specified callback to fire when the animation finishes
+		onAnimationComplete: null // user specified callback to fire when the animation finishes
 	});
 
 	Chart.Tooltip = Chart.Element.extend({
@@ -1590,7 +1591,9 @@
 				}
 				this.yLabels.push(yLabel);
 			}
-			this.yLabelWidth = (this.display && this.showLabels) ? longestText(this.ctx,this.font,this.yLabels) + 10 : 0;
+			if (this.yLabelWidth === null) {
+				this.yLabelWidth = (this.display && this.showLabels) ? longestText(this.ctx,this.font,this.yLabels) + 10 : 0;
+			}
 		},
 		addXLabel : function(label){
 			this.xLabels.push(label);
@@ -1666,7 +1669,7 @@
 				lastRotated;
 
 
-			this.xScalePaddingRight = lastWidth/2 + 3;
+			this.xScalePaddingRight = lastWidth > 0 ? lastWidth/2 + 3 : lastWidth;
 			this.xScalePaddingLeft = (firstWidth/2 > this.yLabelWidth) ? firstWidth/2 : this.yLabelWidth;
 
 			this.xLabelRotation = 0;
@@ -2798,6 +2801,9 @@
 		//Boolean - Whether to show Y axis (can only be false if scaleShowVerticalLines is false)
 		scaleShowYAxis: true,
 
+		//Number - Absolute width of Y axis label padding or null for dynamic
+		scaleYLabelWidth: null,
+
 		//Boolean - Whether to draw tick marks along the X axis
 		scaleShowVerticalTicks: true,
 
@@ -3001,6 +3007,7 @@
 				gridLineWidth : (this.options.scaleShowGridLines) ? this.options.scaleGridLineWidth : 0,
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
 				padding: (this.options.showScale) ? 0 : this.options.pointDotRadius + this.options.pointDotStrokeWidth,
+				yLabelWidth: this.options.scaleYLabelWidth,
 				showLabels : this.options.scaleShowLabels,
 				display : this.options.showScale
 			};
