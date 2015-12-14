@@ -120,6 +120,7 @@
 					pointColor : dataset.pointColor,
 					pointStrokeColor : dataset.pointStrokeColor,
 					points : [],
+					userData : dataset.userData,
 					pointFormatter : dataset.pointFormatter
 				};
 
@@ -130,6 +131,7 @@
 					//Add a new point for each piece of data, passing any required data to draw.
 					var point = new this.PointClass({
 						value : dataPoint,
+						index: index,
 						label : data.labels[index],
 						datasetLabel: dataset.label,
 						strokeColor : dataset.pointStrokeColor,
