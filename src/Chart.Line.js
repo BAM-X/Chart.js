@@ -34,6 +34,9 @@
 		//Number - Absolute width of Y axis label padding or null for dynamic
 		scaleYLabelWidth: null,
 
+		//Number - Number of degrees to rotate X axis labels, or null for automatic
+		scaleXLabelRotation: null,
+
 		//Boolean - Whether to draw tick marks along the X axis
 		scaleShowVerticalTicks: true,
 
@@ -240,6 +243,7 @@
 				chartPaddingLeft: this.options.chartPaddingLeft,
 				chartPaddingRight: this.options.chartPaddingRight,
 				yLabelWidth: this.options.scaleYLabelWidth,
+				xLabelRotation: this.options.scaleXLabelRotation,
 				showLabels : this.options.scaleShowLabels,
 				display : this.options.showScale
 			};

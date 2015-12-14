@@ -1678,7 +1678,6 @@
 			this.xScalePaddingRight = lastWidth > 0 ? lastWidth/2 + 3 : lastWidth;
 			this.xScalePaddingLeft = (firstWidth/2 > this.yLabelWidth) ? firstWidth/2 : this.yLabelWidth;
 
-			this.xLabelRotation = 0;
 			if (this.display){
 				var originalLabelWidth = longestText(this.ctx,this.font,this.xLabels),
 					cosRotation,
@@ -1687,26 +1686,30 @@
 				//Allow 3 pixels x2 padding either side for label readability
 				var xGridWidth = Math.floor(this.calculateX(1) - this.calculateX(0)) - 6;
 
-				//Max label rotate should be 90 - also act as a loop counter
-				while ((this.xLabelWidth > xGridWidth && this.xLabelRotation === 0) || (this.xLabelWidth > xGridWidth && this.xLabelRotation <= 90 && this.xLabelRotation > 0)){
-					cosRotation = Math.cos(toRadians(this.xLabelRotation));
+				if (this.xLabelRotation === null) {
+					this.xLabelRotation = 0;
 
-					firstRotated = cosRotation * firstWidth;
-					lastRotated = cosRotation * lastWidth;
+					//Max label rotate should be 90 - also act as a loop counter
+					while ((this.xLabelWidth > xGridWidth && this.xLabelRotation === 0) || (this.xLabelWidth > xGridWidth && this.xLabelRotation <= 90 && this.xLabelRotation > 0)){
+						cosRotation = Math.cos(toRadians(this.xLabelRotation));
 
-					// We're right aligning the text now.
-					if (firstRotated + this.fontSize / 2 > this.yLabelWidth){
-						this.xScalePaddingLeft = firstRotated + this.fontSize / 2;
+						firstRotated = cosRotation * firstWidth;
+						lastRotated = cosRotation * lastWidth;
+
+						// We're right aligning the text now.
+						if (firstRotated + this.fontSize / 2 > this.yLabelWidth){
+							this.xScalePaddingLeft = firstRotated + this.fontSize / 2;
+						}
+						this.xScalePaddingRight = this.fontSize/2;
+
+
+						this.xLabelRotation++;
+						this.xLabelWidth = cosRotation * originalLabelWidth;
+
 					}
-					this.xScalePaddingRight = this.fontSize/2;
-
-
-					this.xLabelRotation++;
-					this.xLabelWidth = cosRotation * originalLabelWidth;
-
-				}
-				if (this.xLabelRotation > 0){
-					this.endPoint -= Math.sin(toRadians(this.xLabelRotation))*originalLabelWidth + 3;
+					if (this.xLabelRotation > 0){
+						this.endPoint -= Math.sin(toRadians(this.xLabelRotation))*originalLabelWidth + 3;
+					}
 				}
 			}
 			else{
@@ -2810,6 +2813,9 @@
 		//Number - Absolute width of Y axis label padding or null for dynamic
 		scaleYLabelWidth: null,
 
+		//Number - Number of degrees to rotate X axis labels, or null for automatic
+		scaleXLabelRotation: null,
+
 		//Boolean - Whether to draw tick marks along the X axis
 		scaleShowVerticalTicks: true,
 
@@ -3016,6 +3022,7 @@
 				chartPaddingLeft: this.options.chartPaddingLeft,
 				chartPaddingRight: this.options.chartPaddingRight,
 				yLabelWidth: this.options.scaleYLabelWidth,
+				xLabelRotation: this.options.scaleXLabelRotation,
 				showLabels : this.options.scaleShowLabels,
 				display : this.options.showScale
 			};
