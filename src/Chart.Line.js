@@ -34,6 +34,9 @@
 		//Number - Absolute width of Y axis label padding or null for dynamic
 		scaleYLabelWidth: null,
 
+		//Number - Absolute width of last X axis label or null for dynamic
+		xScalePaddingRight: null,
+
 		//Number - Number of degrees to rotate X axis labels, or null for automatic
 		scaleXLabelRotation: null,
 
@@ -245,6 +248,7 @@
 				chartPaddingLeft: this.options.chartPaddingLeft,
 				chartPaddingRight: this.options.chartPaddingRight,
 				yLabelWidth: this.options.scaleYLabelWidth,
+				xScalePaddingRight: this.options.xScalePaddingRight,
 				xLabelRotation: this.options.scaleXLabelRotation,
 				showLabels : this.options.scaleShowLabels,
 				display : this.options.showScale

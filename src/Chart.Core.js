@@ -1676,7 +1676,9 @@
 				lastRotated;
 
 
-			this.xScalePaddingRight = lastWidth > 0 ? lastWidth/2 + 3 : lastWidth;
+			if (this.xScalePaddingRight === null) {
+				this.xScalePaddingRight = lastWidth > 0 ? lastWidth/2 + 3 : lastWidth;
+			}
 			this.xScalePaddingLeft = (firstWidth/2 > this.yLabelWidth) ? firstWidth/2 : this.yLabelWidth;
 
 			if (this.display){
