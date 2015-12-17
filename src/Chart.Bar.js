@@ -56,13 +56,13 @@
 				calculateBarX : function(datasetCount, datasetIndex, barIndex){
 					//Reusable method for calculating the xPosition of a given bar based on datasetIndex & width of the bar
 					var xWidth = this.calculateBaseWidth(),
-						xAbsolute = this.calculateX(barIndex) - (xWidth/2),
+						xAbsolute = this.calculateValueX(barIndex) - (xWidth/2),
 						barWidth = this.calculateBarWidth(datasetCount);
 
 					return xAbsolute + (barWidth * datasetIndex) + (datasetIndex * options.barDatasetSpacing) + barWidth/2;
 				},
 				calculateBaseWidth : function(){
-					return (this.calculateX(1) - this.calculateX(0)) - (2*options.barValueSpacing);
+					return (this.calculateValueX(1) - this.calculateValueX(0)) - (2*options.barValueSpacing);
 				},
 				calculateBarWidth : function(datasetCount){
 					//The padding between datasets is to the right of each bar, providing that there are more than 1 dataset

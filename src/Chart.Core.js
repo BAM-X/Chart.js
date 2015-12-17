@@ -1687,7 +1687,7 @@
 					firstRotatedWidth;
 				this.xLabelWidth = originalLabelWidth;
 				//Allow 3 pixels x2 padding either side for label readability
-				var xGridWidth = Math.floor(this.calculateX(1) - this.calculateX(0)) - 6;
+				var xGridWidth = Math.floor(this.calculateValueX(1) - this.calculateValueX(0)) - 6;
 
 				if (this.xLabelRotation === null) {
 					this.xLabelRotation = 0;
@@ -1732,11 +1732,20 @@
 			var scalingFactor = this.drawingArea() / (this.min - this.max);
 			return this.endPoint - (scalingFactor * (value - this.min));
 		},
-		calculateX : function(index){
-			var isRotated = (this.xLabelRotation > 0),
-				// innerWidth = (this.offsetGridLines) ? this.width - offsetLeft - this.padding : this.width - (offsetLeft + halfLabelWidth * 2) - this.padding,
-				innerWidth = this.width - (this.xScalePaddingLeft + this.xScalePaddingRight) - (this.chartPaddingLeft + this.chartPaddingRight),
+		calculateValueX : function(index){
+			var innerWidth = this.width - (this.xScalePaddingLeft + this.xScalePaddingRight) - (this.chartPaddingLeft + this.chartPaddingRight),
 				valueWidth = innerWidth/Math.max((this.valuesCount - ((this.offsetGridLines) ? 0 : 1)), 1),
+				valueOffset = (valueWidth * index) + this.xScalePaddingLeft + this.chartPaddingLeft;
+
+			if (this.offsetGridLines){
+				valueOffset += (valueWidth/2);
+			}
+
+			return Math.round(valueOffset);
+		},
+		calculateLabelX : function(index){
+			var innerWidth = this.width - (this.xScalePaddingLeft + this.xScalePaddingRight) - (this.chartPaddingLeft + this.chartPaddingRight),
+				valueWidth = innerWidth/Math.max((this.xLabels.length - ((this.offsetGridLines) ? 0 : 1)), 1),
 				valueOffset = (valueWidth * index) + this.xScalePaddingLeft + this.chartPaddingLeft;
 
 			if (this.offsetGridLines){
@@ -1811,9 +1820,9 @@
 				},this);
 
 				each(this.xLabels,function(label,index){
-					var xPos = this.calculateX(index) + aliasPixel(this.lineWidth),
+					var xPos = this.calculateValueX(index) + aliasPixel(this.lineWidth),
 						// Check to see if line/bar here and decide where to place the line
-						linePos = this.calculateX(index - (this.offsetGridLines ? 0.5 : 0)) + aliasPixel(this.lineWidth),
+						linePos = this.calculateValueX(index - (this.offsetGridLines ? 0.5 : 0)) + aliasPixel(this.lineWidth),
 						isRotated = (this.xLabelRotation > 0),
 						drawYAxis = this.showYAxis,
 						drawVerticalLine = this.showVerticalLines,
@@ -1860,6 +1869,12 @@
 					}
 
 					ctx.save();
+				},this);
+
+				each(this.xLabels,function(label,index){
+					var xPos = this.calculateLabelX(index) + aliasPixel(this.lineWidth),
+						isRotated = (this.xLabelRotation > 0);
+
 					ctx.translate(xPos,(isRotated) ? this.endPoint + 12 : this.endPoint + 8);
 					ctx.rotate(toRadians(this.xLabelRotation)*-1);
 					ctx.font = this.font;
@@ -1868,7 +1883,6 @@
 					ctx.fillText(label, this.xLabelOffsetX, this.xLabelOffsetY);
 					ctx.restore();
 				},this);
-
 			}
 		}
 

@@ -148,12 +148,11 @@
 					datasetObject.points.push(point);
 				},this);
 
-				this.buildScale(data.labels);
-
+				this.scale = this.buildScale(data.labels);
 
 				this.eachPoints(function(point, index){
 					helpers.extend(point, {
-						x: this.scale.calculateX(index),
+						x: this.scale.calculateValueX(index),
 						y: this.scale.endPoint
 					});
 					point.save();
@@ -217,7 +216,7 @@
 				textAlign : this.options.scaleTextAlign,
 				yLabelOffsetX : this.options.yLabelOffsetX,
 				yLabelOffsetY : this.options.yLabelOffsetY,
-				valuesCount : labels.length,
+				valuesCount : dataTotal().length,
 				beginAtZero : this.options.scaleBeginAtZero,
 				integersOnly : this.options.scaleIntegersOnly,
 				calculateYRange : function(currentHeight){
@@ -265,7 +264,7 @@
 			}
 
 
-			this.scale = new Chart.Scale(scaleOptions);
+			return new Chart.Scale(scaleOptions);
 		},
 		addData : function(valuesArray,label){
 			//Map the values array for each of the datasets
@@ -276,7 +275,7 @@
 					value : value,
 					label : label,
 					datasetLabel: this.datasets[datasetIndex].label,
-					x: this.scale.calculateX(this.scale.valuesCount+1),
+					x: this.scale.calculateValueX(this.scale.valuesCount+1),
 					y: this.scale.endPoint,
 					strokeColor : this.datasets[datasetIndex].pointStrokeColor,
 					fillColor : this.datasets[datasetIndex].pointColor
@@ -337,7 +336,7 @@
 					if (point.hasValue()){
 						point.transition({
 							y : this.scale.calculateY(point.value),
-							x : this.scale.calculateX(index)
+							x : this.scale.calculateValueX(index)
 						}, easingDecimal);
 					}
 				},this);

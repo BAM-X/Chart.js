@@ -1687,7 +1687,7 @@
 					firstRotatedWidth;
 				this.xLabelWidth = originalLabelWidth;
 				//Allow 3 pixels x2 padding either side for label readability
-				var xGridWidth = Math.floor(this.calculateX(1) - this.calculateX(0)) - 6;
+				var xGridWidth = Math.floor(this.calculateValueX(1) - this.calculateValueX(0)) - 6;
 
 				if (this.xLabelRotation === null) {
 					this.xLabelRotation = 0;
@@ -1732,11 +1732,20 @@
 			var scalingFactor = this.drawingArea() / (this.min - this.max);
 			return this.endPoint - (scalingFactor * (value - this.min));
 		},
-		calculateX : function(index){
-			var isRotated = (this.xLabelRotation > 0),
-				// innerWidth = (this.offsetGridLines) ? this.width - offsetLeft - this.padding : this.width - (offsetLeft + halfLabelWidth * 2) - this.padding,
-				innerWidth = this.width - (this.xScalePaddingLeft + this.xScalePaddingRight) - (this.chartPaddingLeft + this.chartPaddingRight),
+		calculateValueX : function(index){
+			var innerWidth = this.width - (this.xScalePaddingLeft + this.xScalePaddingRight) - (this.chartPaddingLeft + this.chartPaddingRight),
 				valueWidth = innerWidth/Math.max((this.valuesCount - ((this.offsetGridLines) ? 0 : 1)), 1),
+				valueOffset = (valueWidth * index) + this.xScalePaddingLeft + this.chartPaddingLeft;
+
+			if (this.offsetGridLines){
+				valueOffset += (valueWidth/2);
+			}
+
+			return Math.round(valueOffset);
+		},
+		calculateLabelX : function(index){
+			var innerWidth = this.width - (this.xScalePaddingLeft + this.xScalePaddingRight) - (this.chartPaddingLeft + this.chartPaddingRight),
+				valueWidth = innerWidth/Math.max((this.xLabels.length - ((this.offsetGridLines) ? 0 : 1)), 1),
 				valueOffset = (valueWidth * index) + this.xScalePaddingLeft + this.chartPaddingLeft;
 
 			if (this.offsetGridLines){
@@ -1811,9 +1820,9 @@
 				},this);
 
 				each(this.xLabels,function(label,index){
-					var xPos = this.calculateX(index) + aliasPixel(this.lineWidth),
+					var xPos = this.calculateValueX(index) + aliasPixel(this.lineWidth),
 						// Check to see if line/bar here and decide where to place the line
-						linePos = this.calculateX(index - (this.offsetGridLines ? 0.5 : 0)) + aliasPixel(this.lineWidth),
+						linePos = this.calculateValueX(index - (this.offsetGridLines ? 0.5 : 0)) + aliasPixel(this.lineWidth),
 						isRotated = (this.xLabelRotation > 0),
 						drawYAxis = this.showYAxis,
 						drawVerticalLine = this.showVerticalLines,
@@ -1860,6 +1869,12 @@
 					}
 
 					ctx.save();
+				},this);
+
+				each(this.xLabels,function(label,index){
+					var xPos = this.calculateLabelX(index) + aliasPixel(this.lineWidth),
+						isRotated = (this.xLabelRotation > 0);
+
 					ctx.translate(xPos,(isRotated) ? this.endPoint + 12 : this.endPoint + 8);
 					ctx.rotate(toRadians(this.xLabelRotation)*-1);
 					ctx.font = this.font;
@@ -1868,7 +1883,6 @@
 					ctx.fillText(label, this.xLabelOffsetX, this.xLabelOffsetY);
 					ctx.restore();
 				},this);
-
 			}
 		}
 
@@ -2343,13 +2357,13 @@
 				calculateBarX : function(datasetCount, datasetIndex, barIndex){
 					//Reusable method for calculating the xPosition of a given bar based on datasetIndex & width of the bar
 					var xWidth = this.calculateBaseWidth(),
-						xAbsolute = this.calculateX(barIndex) - (xWidth/2),
+						xAbsolute = this.calculateValueX(barIndex) - (xWidth/2),
 						barWidth = this.calculateBarWidth(datasetCount);
 
 					return xAbsolute + (barWidth * datasetIndex) + (datasetIndex * options.barDatasetSpacing) + barWidth/2;
 				},
 				calculateBaseWidth : function(){
-					return (this.calculateX(1) - this.calculateX(0)) - (2*options.barValueSpacing);
+					return (this.calculateValueX(1) - this.calculateValueX(0)) - (2*options.barValueSpacing);
 				},
 				calculateBarWidth : function(datasetCount){
 					//The padding between datasets is to the right of each bar, providing that there are more than 1 dataset
@@ -2930,12 +2944,11 @@
 					datasetObject.points.push(point);
 				},this);
 
-				this.buildScale(data.labels);
-
+				this.scale = this.buildScale(data.labels);
 
 				this.eachPoints(function(point, index){
 					helpers.extend(point, {
-						x: this.scale.calculateX(index),
+						x: this.scale.calculateValueX(index),
 						y: this.scale.endPoint
 					});
 					point.save();
@@ -2999,7 +3012,7 @@
 				textAlign : this.options.scaleTextAlign,
 				yLabelOffsetX : this.options.yLabelOffsetX,
 				yLabelOffsetY : this.options.yLabelOffsetY,
-				valuesCount : labels.length,
+				valuesCount : dataTotal().length,
 				beginAtZero : this.options.scaleBeginAtZero,
 				integersOnly : this.options.scaleIntegersOnly,
 				calculateYRange : function(currentHeight){
@@ -3047,7 +3060,7 @@
 			}
 
 
-			this.scale = new Chart.Scale(scaleOptions);
+			return new Chart.Scale(scaleOptions);
 		},
 		addData : function(valuesArray,label){
 			//Map the values array for each of the datasets
@@ -3058,7 +3071,7 @@
 					value : value,
 					label : label,
 					datasetLabel: this.datasets[datasetIndex].label,
-					x: this.scale.calculateX(this.scale.valuesCount+1),
+					x: this.scale.calculateValueX(this.scale.valuesCount+1),
 					y: this.scale.endPoint,
 					strokeColor : this.datasets[datasetIndex].pointStrokeColor,
 					fillColor : this.datasets[datasetIndex].pointColor
@@ -3119,7 +3132,7 @@
 					if (point.hasValue()){
 						point.transition({
 							y : this.scale.calculateY(point.value),
-							x : this.scale.calculateX(index)
+							x : this.scale.calculateValueX(index)
 						}, easingDecimal);
 					}
 				},this);
